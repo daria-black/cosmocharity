@@ -494,7 +494,7 @@
     function renderData(km) {
       const usd = km * KM_RATE;
       const targetUsd = GOAL_KM * KM_RATE;
-      const percent = Math.min(Math.round((km / GOAL_KM) * 100), 100);
+      const percent = Math.min(Math.floor((km / GOAL_KM) * 100), 100);
 
       document.getElementById('target-km').innerText = GOAL_KM.toLocaleString('uk-UA');
       document.getElementById('target-usd').innerText = '$' + targetUsd.toLocaleString('en-US');
