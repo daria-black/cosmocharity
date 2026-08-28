@@ -15,7 +15,7 @@
       --accent-purple: #8100ff; /* Світло-фіолетовий/неоновий (блискавки) */
       --neon-glow: #bf00ff;
       --card-bg: rgba(18, 4, 38, 0.85);
-      --card-bg-solid: #120426; /* Солідний колір для проміжків батареї */
+      --card-bg-solid: #000000; /* Насичений чорний для проміжків батареї */
       --border-glow: rgba(180, 0, 255, 0.4);
       --energy-blue: #00e5ff; /* Колір для енергії */
       --neon-magenta: #f500ff; /* Яскравий неоново-фіолетовий */
@@ -162,7 +162,7 @@
       }
     }
 
-    /* НЕОНОВА БАТАРЕЙКА */
+    /* НЕОНОВА БАТАРЕЙКА (ОНОВЛЕНО ДЛЯ ІНТЕНСИВНОГО СВІТІННЯ) */
     .battery-wrapper {
       display: flex;
       flex-direction: column;
@@ -170,7 +170,7 @@
       position: relative;
     }
 
-    /* Контакт на верхній частині батарейки (плюс) */
+    /* Контакт на верхній частині батарейки (плюс) (ОНОВЛЕНО) */
     .battery-nub {
       width: 50px;
       height: 18px;
@@ -178,50 +178,63 @@
       border: 3px solid var(--neon-glow);
       border-bottom: none;
       border-radius: 8px 8px 0 0;
-      box-shadow: 0 -5px 15px rgba(180, 0, 255, 0.5);
+      /* Інтенсивніше світіння */
+      box-shadow: 0 -10px 30px rgba(180, 0, 255, 0.7);
       z-index: 2;
     }
 
-    /* Основний корпус батарейки */
+    /* Основний корпус батарейки (ОНОВЛЕНО) */
     .battery-body {
       position: relative;
       width: 140px;
       height: 280px;
-      background: rgba(10, 2, 20, 0.7);
+      background: var(--card-bg-solid); /* Повністю чорний фон */
       border: 3px solid var(--neon-glow);
-      border-radius: 12px;
+      border-radius: 20px; /* Збільшений радіус */
+      /* Інтенсивніше зовнішнє та внутрішнє світіння */
       box-shadow: 
-        0 0 30px rgba(191, 0, 255, 0.4),
-        inset 0 0 20px rgba(191, 0, 255, 0.2);
+        0 0 60px rgba(191, 0, 255, 0.7),
+        inset 0 0 30px rgba(191, 0, 255, 0.4);
       padding: 6px;
       display: flex;
       flex-direction: column;
       justify-content: flex-end; /* Заряд росте знизу вверх */
       z-index: 3;
+      overflow: hidden; /* Щоб світіння заповнення не виходило за межі */
     }
 
-    /* ==========================================
-       НЕОНОВО-ФІОЛЕТОВИЙ ПРОГРЕС БАТАРЕЙКИ
-       ========================================== */
+    /* Напівпрозорий фіолетовий фон для незаповненої області (НОВИЙ) */
+    .battery-unfilled-area-glow {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      right: 6px;
+      bottom: 6px;
+      background-color: rgba(129, 0, 255, 0.2); /* Напівпрозорий фіолетовий */
+      border-radius: 12px; /* Трохи менший, ніж у корпусу */
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Рівень заповнення (ОНОВЛЕНО ГРАДІЄНТ ТА СВІТІННЯ) */
     .battery-level {
       width: 100%;
       height: 0%; /* Оновлюється через JS */
-      background: linear-gradient(180deg, var(--neon-magenta) 0%, var(--accent-purple) 50%, #300066 100%);
+      /* Градієнт: фіолетовий знизу, рожевий зверху */
+      background: linear-gradient(to top, #8100ff 0%, #f500ff 100%);
       transition: height 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+      /* Інтенсивніше неонове світіння */
       box-shadow: 
-        0 0 20px var(--neon-magenta),
-        0 0 40px var(--accent-purple),
-        inset 0 0 15px rgba(255, 255, 255, 0.4);
+        0 0 30px var(--neon-magenta),
+        0 0 60px var(--accent-purple);
       border-radius: 4px;
       position: relative;
       overflow: hidden;
-      /* Мерехтливий неоновий пил */
-      background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-      background-size: 16px 16px;
-      animation: static-noise 2s infinite linear;
+      z-index: 2;
+      /* Видалено ефекти статичного шуму та мерехтливого пилу */
     }
 
-    /* Верхня неонова крайка рівня заряду */
+    /* Верхня неонова крайка рівня заряду (ОНОВЛЕНО СВІТІННЯ) */
     .battery-level::before {
       content: '';
       position: absolute;
@@ -230,29 +243,34 @@
       width: 100%;
       height: 4px;
       background: #ffffff;
-      box-shadow: 0 0 10px #ffffff, 0 0 20px var(--neon-magenta);
+      /* Яскравіше світіння */
+      box-shadow: 0 0 15px #ffffff, 0 0 30px var(--neon-magenta);
       z-index: 2;
     }
 
-    /* Сітка поділок (10 сегментів) */
-    .battery-overlay {
+    /* Накладання горизонтальних ліній відблисків (НОВИЙ, НАЛАШТОВАНО) */
+    .battery-glare-horizontal-overlay {
       position: absolute;
       top: 6px; 
       left: 6px; 
       right: 6px; 
       bottom: 6px;
-      z-index: 4;
+      z-index: 3;
       pointer-events: none;
+      /* Створення горизонтальних проміжків, як на скріншоті */
       background: repeating-linear-gradient(
         to top,
         transparent,
-        transparent calc(10% - 4px),
-        var(--card-bg-solid) calc(10% - 4px),
-        var(--card-bg-solid) 10%
+        transparent 10px,
+        rgba(255,255,255,0.1) 10px,
+        rgba(255,255,255,0.1) 12px
       );
+      border-radius: 12px;
     }
 
-    /* Відблиск на склі батарейки */
+    /* Видалено .battery-overlay */
+
+    /* Відблиск скла (ОНОВЛЕНО ПОЗИЦІОНУВАННЯ) */
     .battery-body::after {
       content: '';
       position: absolute;
@@ -263,22 +281,24 @@
       background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.02) 100%);
       border-radius: 8px;
       pointer-events: none;
-      z-index: 5;
+      z-index: 4; /* Поверх заповнення та ліній */
     }
 
+    /* Текст відсотків (ОНОВЛЕНО ЖИРНІСТЬ ТА СВІТІННЯ) */
     .battery-percent {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: 2.2rem;
-      font-weight: 900;
+      font-weight: 900; /* Максимальна жирність */
       color: #ffffff;
-      text-shadow: 0 0 10px #000, 0 0 25px var(--neon-magenta);
-      z-index: 6;
+      /* Інтенсивніше та яскравіше неонове світіння тексту */
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 0 30px var(--neon-magenta);
+      z-index: 5; /* Найвищий пріоритет */
     }
 
-    /* Ефекти енергії (блискавки та іскри) */
+    /* Ефекти енергії (блискавки та іскри) (ЗБЕРЕЖЕНО ЯК ЕФЕКТ ЕНЕРГІЇ) */
     .energy-surge {
       position: absolute;
       width: 100%;
@@ -286,6 +306,7 @@
       top: 0;
       left: 0;
       pointer-events: none;
+      opacity: 0.6; /* Легка напівпрозорість */
     }
 
     .lightning-streak {
@@ -404,11 +425,17 @@
 
   <div class="dashboard-card">
     
+    <!-- ОНОВЛЕНА НЕОНОВА БАТАРЕЙКА -->
     <div class="battery-wrapper">
       <div class="battery-nub"></div>
       <div class="battery-body">
         
+        <!-- Напівпрозорий фіолетовий фон для незаповненої області -->
+        <div class="battery-unfilled-area-glow"></div>
+
+        <!-- Рівень заповнення -->
         <div class="battery-level" id="battery-level">
+          <!-- Ефекти енергії (блискавки залишаться як тонкі енергетичні розряди) -->
           <div class="energy-surge">
             <div class="lightning-streak" style="width: 1px; height: 100px; top: 10%; left: 25%; transform: rotate(15deg);"></div>
             <div class="lightning-streak" style="width: 0.8px; height: 120px; top: 25%; left: 65%; transform: rotate(-10deg); animation-delay: 0.2s;"></div>
@@ -419,8 +446,10 @@
           </div>
         </div>
 
-        <div class="battery-overlay"></div>
+        <!-- Накладання горизонтальних ліній відблисків -->
+        <div class="battery-glare-horizontal-overlay"></div>
 
+        <!-- Текст відсотків -->
         <div class="battery-percent" id="battery-percent">0%</div>
       </div>
     </div>
@@ -494,6 +523,8 @@
     function renderData(km) {
       const usd = km * KM_RATE;
       const targetUsd = GOAL_KM * KM_RATE;
+      
+      // ЗМІНЕНО ТУТ: Math.round замінено на Math.floor для округлення в меншу сторону
       const percent = Math.min(Math.floor((km / GOAL_KM) * 100), 100);
 
       document.getElementById('target-km').innerText = GOAL_KM.toLocaleString('uk-UA');
