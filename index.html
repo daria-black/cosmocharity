@@ -378,16 +378,7 @@
       letter-spacing: 0.08em;
     }
 
-    .footer-note {
-      text-align: right;
-      font-size: 0.8rem;
-      color: #7b6299;
-      font-weight: 700;
-      margin-top: 5px;
-    }
-
     @media (max-width: 700px) {
-      .footer-note { text-align: center; }
       .goal-badge { align-self: center; }
     }
   </style>
@@ -448,8 +439,6 @@
         <div class="stat-value" id="val-km">0 км</div>
         <div class="stat-label">Загальний забіг команди</div>
       </div>
-
-      <div class="footer-note" id="update-time">Оновлення даних...</div>
     </div>
 
   </div>
@@ -458,73 +447,70 @@
     // ==========================================
     // НАЛАШТУВАННЯ
     // ==========================================
-    const SHEET_ID = '1RTtwActEuEmLpCCfCKDGt98iFCzX0QPMSv1QVWNUpC0'; // Замініть на ID вашої Google Таблиці
+    const SHEET_ID = '1RTtwActEuEmLpCCfCKDGt98iFCzX0QPMSv1QVWNUpC0'; // ID вашої Google Таблиці
     const GOAL_KM = 1000;                   // Загальна ціль у км
     const KM_RATE = 10;                     // 1 км = $10
 
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
     async function loadStats() {
-  try {
-    const response = await fetch(CSV_URL);
-    if (!response.ok) throw new Error('Помилка завантаження. Статус: ' + response.status);
-    
-    // Отримуємо текст з файлу
-    const csvText = await response.text();
-    
-    // Розбиваємо текст на рядки і прибираємо порожні
-    const rows = csvText.split('\n').filter(row => row.trim() !== '');
-    
-    // Беремо останній рядок (якщо їх більше одного - беремо другий, інакше перший)
-    let targetRow = rows.length > 1 ? rows[rows.length - 1] : rows[0];
-    
-    // Розбиваємо рядок по комірках (якщо є інші стовпці) і беремо першу комірку
-    let firstCell = targetRow.split(',')[0];
-    
-    // Очищаємо від лапок, пробілів і замінюємо кому на крапку (для десяткових дробів)
-    let cleanString = firstCell.replace(/"/g, '').trim().replace(',', '.');
-    
-    // Перетворюємо в число
-    let km = parseFloat(cleanString);
+      try {
+        const response = await fetch(CSV_URL);
+        if (!response.ok) throw new Error('Помилка завантаження. Статус: ' + response.status);
+        
+        // Отримуємо текст з файлу
+        const csvText = await response.text();
+        
+        // Розбиваємо текст на рядки і прибираємо порожні
+        const rows = csvText.split('\n').filter(row => row.trim() !== '');
+        
+        // Беремо останній рядок (якщо їх більше одного - беремо другий, інакше перший)
+        let targetRow = rows.length > 1 ? rows[rows.length - 1] : rows[0];
+        
+        // Розбиваємо рядок по комірках (якщо є інші стовпці) і беремо першу комірку
+        let firstCell = targetRow.split(',')[0];
+        
+        // Очищаємо від лапок, пробілів і замінюємо кому на крапку (для десяткових дробів)
+        let cleanString = firstCell.replace(/"/g, '').trim().replace(',', '.');
+        
+        // Перетворюємо в число
+        let km = parseFloat(cleanString);
 
-    // Перевіряємо, чи вийшло нормальне число
-    if (isNaN(km)) {
-      console.error("Не вдалося розпізнати число. Отримано текст:", cleanString);
-      km = 0; // Якщо там текст замість числа, ставимо 0
+        // Перевіряємо, чи вийшло нормальне число
+        if (isNaN(km)) {
+          console.error("Не вдалося розпізнати число. Отримано текст:", cleanString);
+          km = 0; // Якщо там текст замість числа, ставимо 0
+        }
+
+        renderData(km);
+
+      } catch (err) {
+        console.error("Сталася помилка при отриманні даних:", err);
+        // Запасний варіант для тесту
+        renderData(220); 
+      }
     }
 
-    renderData(km);
+    function renderData(km) {
+      const usd = km * KM_RATE;
+      const targetUsd = GOAL_KM * KM_RATE;
+      const percent = Math.min(Math.round((km / GOAL_KM) * 100), 100);
 
-  } catch (err) {
-    console.error("Сталася помилка при отриманні даних:", err);
-    // Якщо сталася помилка з інтернетом або таблицею, покажемо 220 км для тесту
-    renderData(220); 
-  }
-}
+      document.getElementById('target-km').innerText = GOAL_KM.toLocaleString('uk-UA');
+      document.getElementById('target-usd').innerText = '$' + targetUsd.toLocaleString('en-US');
 
-function renderData(km) {
-  const usd = km * KM_RATE;
-  const targetUsd = GOAL_KM * KM_RATE;
-  const percent = Math.min(Math.round((km / GOAL_KM) * 100), 100);
+      document.getElementById('val-km').innerText = km.toLocaleString('uk-UA') + ' км';
+      document.getElementById('val-usd').innerText = '$' + usd.toLocaleString('en-US');
+      
+      // Оновлюємо рівень заряду
+      document.getElementById('battery-level').style.height = percent + '%';
+      document.getElementById('battery-percent').innerText = percent + '%';
+    }
 
-  document.getElementById('target-km').innerText = GOAL_KM.toLocaleString('uk-UA');
-  document.getElementById('target-usd').innerText = '$' + targetUsd.toLocaleString('en-US');
-
-  document.getElementById('val-km').innerText = km.toLocaleString('uk-UA') + ' км';
-  document.getElementById('val-usd').innerText = '$' + usd.toLocaleString('en-US');
-  
-  // Оновлюємо рівень заряду
-  document.getElementById('battery-level').style.height = percent + '%';
-  document.getElementById('battery-percent').innerText = percent + '%';
-
-  const now = new Date();
-  document.getElementById('update-time').innerText = 'Останнє оновлення: ' + now.toLocaleTimeString('uk-UA');
-}
-
-// Запускаємо при відкритті сторінки
-loadStats();
-// Оновлюємо кожні 30 секунд
-setInterval(loadStats, 30000);
+    // Запускаємо ТІЛЬКИ ОДИН РАЗ при відкритті сторінки
+    loadStats();
+    
+    // Рядок із setInterval видалено, автоматичного оновлення більше немає.
   </script>
 </body>
 </html>
